@@ -7,6 +7,12 @@ from typing import Any
 from pydantic import BaseModel, Field
 
 
+class EvaluationStrategy(str, Enum):
+    HYBRID = "hybrid"  # Host AI semantic reasoning + Deterministic citation anchor
+    HOST_AI = "host_ai"  # Host AI deep semantic evaluation in chat
+    DETERMINISTIC = "deterministic"  # Regex/stemming token containment
+
+
 class VisualType(str, Enum):
     PROOF_CARD = "proof_card"
     ENTITY_GRAPH = "entity_graph"
@@ -46,6 +52,8 @@ class FactCheckVerdict(BaseModel):
     threshold: float = 0.8
     citations: list[EvidenceCitation] = Field(default_factory=list)
     verdict_text: str = ""
+    strategy_used: EvaluationStrategy = EvaluationStrategy.HYBRID
+    semantic_reasoning: str = ""
 
 
 class VisualElement(BaseModel):
@@ -69,6 +77,10 @@ class ScriptBeat(BaseModel):
     citations: list[EvidenceCitation] = Field(default_factory=list)
     grounding_score: float = 1.0
     verified: bool = True
+    anchor_verified: bool = True  # Verbatim quote & source page confirmed
+    semantic_verified: bool = True  # Host AI confirmed faithful meaning
+    semantic_reasoning: str = ""  # Rationale why narration is faithful
+    evaluation_strategy: EvaluationStrategy = EvaluationStrategy.HYBRID
     estimated_duration_sec: float = 5.0
 
 

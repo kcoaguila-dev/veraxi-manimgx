@@ -5,6 +5,7 @@ from __future__ import annotations
 from veraxi_manimgx.client.veraxi_client import VeraxiClient
 from veraxi_manimgx.core.fact_gate import FactGate
 from veraxi_manimgx.core.models import (
+    EvaluationStrategy,
     EvidenceCitation,
     FactCheckVerdict,
     ScriptBeat,
@@ -18,6 +19,7 @@ from veraxi_manimgx.pipeline import ProductionPipeline
 __version__ = "0.1.0"
 
 __all__ = [
+    "EvaluationStrategy",
     "EvidenceCitation",
     "FactCheckVerdict",
     "FactGate",

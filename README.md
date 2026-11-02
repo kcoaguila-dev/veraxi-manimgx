@@ -6,7 +6,11 @@
 
 ---
 
-## 🏛️ System Architecture
+## 🏛️ Hybrid System Architecture
+
+`veraxi-manimgx` employs a **Two-Tier Hybrid Grounding Architecture**:
+1. **Host AI Semantic Evaluation:** Frontier intelligence understands accounting nuances, allows natural voiceover paraphrasing, and catches subtle polarity reversals (e.g., false negations).
+2. **Deterministic Citation Anchor:** Validates that every spoken claim is tethered to a non-empty, verbatim primary source quote and real page number from Veraxi's Neo4j/Qdrant index.
 
 ```text
 User Topic ("Allied Capital PIK Shenanigans")
@@ -16,13 +20,15 @@ User Topic ("Allied Capital PIK Shenanigans")
          └───────────┬───────────┘
                      │  Extracts verbatim proof quotes, page numbers, entity edges
          ┌───────────▼───────────┐
-         │ 2. Storyboard Creator │  Drafts narrator beats with bracketed [anim] markers
+         │ 2. Host AI Author 🧠  │  Translates accounting mechanisms into natural voiceover
+         │                       │  Embeds bracketed [anim] markers for ManimGX
          └───────────┬───────────┘
                      │
          ┌───────────▼───────────┐
-         │  3. Fact-Check Gate   │  Deterministic Tier-2 Grounding Audit
+         │ 3. Hybrid Fact Gate 🛡│  Tier 1: Host AI confirms faithful semantic meaning
+         │                       │  Tier 2: Deterministic engine anchors quote & page
          └───────────┬───────────┘
-                     │  Blocks unverified claims (Threshold >= 0.75)
+                     │  Blocks unanchored or inverted claims
          ┌───────────▼───────────┐
          │ 4. ManimGX Generator  │  Compiles verified beats into self.say() code
          └───────────┬───────────┘

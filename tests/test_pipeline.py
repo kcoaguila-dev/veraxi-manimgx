@@ -7,10 +7,11 @@ import pytest
 from unittest.mock import AsyncMock
 
 from veraxi_manimgx.core.models import (
-    Storyboard,
-    ScriptBeat,
+    EvaluationStrategy,
     EvidenceCitation,
     FactCheckVerdict,
+    ScriptBeat,
+    Storyboard,
 )
 from veraxi_manimgx.core.fact_gate import FactGate
 from veraxi_manimgx.generators.manim_generator import ManimCodeGenerator
@@ -69,25 +70,47 @@ def test_manim_code_generation():
     assert "self.say(" in code
 
 
-def test_fact_gate_audit():
+def test_hybrid_fact_gate_success():
     async def _run():
-        mock_client = AsyncMock()
-        mock_client.fact_check.return_value = FactCheckVerdict(
-            claim="Keurig altered rules",
-            passed=True,
-            score=0.92,
-            threshold=0.75,
-            citations=[],
+        gate = FactGate(strategy=EvaluationStrategy.HYBRID)
+        cit = EvidenceCitation(
+            source="Fooling Some of the People",
+            page=81,
+            verbatim_quote="Allied accrued non-cash PIK interest on mezzanine loans.",
+            chunk_text="Allied accrued non-cash PIK interest on mezzanine loans to report income.",
         )
-
-        gate = FactGate(client=mock_client, threshold=0.75)
+        # Paraphrased narration without word-for-word clone
         beat = ScriptBeat(
-            id="b1", narration="Keurig altered rules", claims=["Keurig altered rules"]
+            id="beat_1",
+            narration="Allied Capital [booked paper profits] using [payment-in-kind loans].",
+            citations=[cit],
         )
-        sb = Storyboard(title="Test", topic="Test", beats=[beat])
+        verified_beat = await gate.verify_beat(beat)
+        assert verified_beat.verified is True
+        assert verified_beat.anchor_verified is True
+        assert verified_beat.semantic_verified is True
+        assert verified_beat.grounding_score >= 0.90
 
-        audited = await gate.audit_storyboard(sb, strict=False)
-        assert audited.is_fully_verified is True
-        assert audited.beats[0].grounding_score == 0.92
+    asyncio.run(_run())
+
+
+def test_negation_polarity_detection():
+    async def _run():
+        gate = FactGate(strategy=EvaluationStrategy.HYBRID)
+        cit = EvidenceCitation(
+            source="Fooling Some of the People",
+            page=81,
+            verbatim_quote="Allied capitalized PIK interest onto loan balances.",
+        )
+        # Unfaithful narration introducing negation opposite to evidence
+        beat = ScriptBeat(
+            id="beat_neg",
+            narration="Allied Capital [never capitalized] PIK interest onto loan balances.",
+            citations=[cit],
+        )
+        verified_beat = await gate.verify_beat(beat)
+        assert verified_beat.semantic_verified is False
+        assert verified_beat.verified is False
+        assert "negation" in verified_beat.semantic_reasoning.lower()
 
     asyncio.run(_run())
