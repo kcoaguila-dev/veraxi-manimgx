@@ -1,4 +1,5 @@
 """Data models for Veraxi-ManimGX pipeline."""
+
 from __future__ import annotations
 
 from enum import Enum
@@ -17,6 +18,7 @@ class VisualType(str, Enum):
 
 class EvidenceCitation(BaseModel):
     """Grounded evidence citation retrieved from Veraxi."""
+
     id: str | None = None
     source: str
     page: int | None = None
@@ -28,6 +30,7 @@ class EvidenceCitation(BaseModel):
 
 class EntityRelation(BaseModel):
     """Graph edge between two entities extracted from Neo4j."""
+
     source_entity: str
     target_entity: str
     relation_type: str
@@ -36,6 +39,7 @@ class EntityRelation(BaseModel):
 
 class FactCheckVerdict(BaseModel):
     """Result of a grounding verification check."""
+
     claim: str
     passed: bool
     score: float
@@ -46,6 +50,7 @@ class FactCheckVerdict(BaseModel):
 
 class VisualElement(BaseModel):
     """Definition of an animated visual component in ManimGX."""
+
     visual_type: VisualType
     title: str = ""
     subtitle: str = ""
@@ -56,6 +61,7 @@ class VisualElement(BaseModel):
 
 class ScriptBeat(BaseModel):
     """A synchronized narrative scene beat in ManimGX."""
+
     id: str
     narration: str  # e.g., "Allied Capital [inflated its balance sheet] with [non-cash interest]."
     visuals: list[VisualElement] = Field(default_factory=list)
@@ -68,6 +74,7 @@ class ScriptBeat(BaseModel):
 
 class Storyboard(BaseModel):
     """Complete documentary/explainer project storyboard."""
+
     title: str
     topic: str
     beats: list[ScriptBeat] = Field(default_factory=list)

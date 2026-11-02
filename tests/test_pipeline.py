@@ -1,4 +1,5 @@
 """Unit tests for Veraxi-ManimGX pipeline."""
+
 from __future__ import annotations
 
 import asyncio
@@ -35,7 +36,9 @@ def test_storyboard_grounding_calculation():
         grounding_score=0.85,
         verified=True,
     )
-    sb = Storyboard(title="Keurig Case", topic="Revenue Recognition", beats=[beat1, beat2])
+    sb = Storyboard(
+        title="Keurig Case", topic="Revenue Recognition", beats=[beat1, beat2]
+    )
 
     assert sb.is_fully_verified is True
     assert sb.overall_grounding_score == pytest.approx(0.90)
@@ -78,7 +81,9 @@ def test_fact_gate_audit():
         )
 
         gate = FactGate(client=mock_client, threshold=0.75)
-        beat = ScriptBeat(id="b1", narration="Keurig altered rules", claims=["Keurig altered rules"])
+        beat = ScriptBeat(
+            id="b1", narration="Keurig altered rules", claims=["Keurig altered rules"]
+        )
         sb = Storyboard(title="Test", topic="Test", beats=[beat])
 
         audited = await gate.audit_storyboard(sb, strict=False)

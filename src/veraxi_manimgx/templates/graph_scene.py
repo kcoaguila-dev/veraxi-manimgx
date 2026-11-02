@@ -1,6 +1,8 @@
 """Entity network visualizer in ManimGX for displaying Neo4j graph relationships."""
+
 from __future__ import annotations
 
+import math
 from typing import Sequence
 from veraxi_manimgx.core.models import EntityRelation
 
@@ -21,9 +23,13 @@ try:
         RIGHT,
     )
 except ImportError:
+
     class VGroup:  # type: ignore
-        def __init__(self, *args, **kwargs): pass
-        def add(self, *args): return self
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def add(self, *args):
+            return self
 
 
 class EntityNode(VGroup):
@@ -31,8 +37,12 @@ class EntityNode(VGroup):
 
     def __init__(self, name: str, radius: float = 0.8, color=BLUE, **kwargs) -> None:
         super().__init__(**kwargs)
-        self.circle = Circle(radius=radius, color=color, fill_opacity=0.3, stroke_width=3)
-        self.label = Text(name[:20], font_size=18, color=WHITE).move_to(self.circle.get_center())
+        self.circle = Circle(
+            radius=radius, color=color, fill_opacity=0.3, stroke_width=3
+        )
+        self.label = Text(name[:20], font_size=18, color=WHITE).move_to(
+            self.circle.get_center()
+        )
         self.add(self.circle, self.label)
 
 
@@ -52,7 +62,6 @@ class EntityNetwork(VGroup):
             entity_names.add(r.source_entity)
             entity_names.add(r.target_entity)
 
-        import math
         names_list = list(entity_names)
         radius = 3.5
 
@@ -71,13 +80,19 @@ class EntityNetwork(VGroup):
             tgt_node = self.nodes.get(r.target_entity)
             if src_node and tgt_node and src_node != tgt_node:
                 arrow = Arrow(
-                    src_node.circle.get_edge_center(tgt_node.circle.get_center() - src_node.circle.get_center()),
-                    tgt_node.circle.get_edge_center(src_node.circle.get_center() - tgt_node.circle.get_center()),
+                    src_node.circle.get_edge_center(
+                        tgt_node.circle.get_center() - src_node.circle.get_center()
+                    ),
+                    tgt_node.circle.get_edge_center(
+                        src_node.circle.get_center() - tgt_node.circle.get_center()
+                    ),
                     buff=0.1,
                     color=YELLOW,
                     stroke_width=2,
                 )
-                rel_label = Text(r.relation_type, font_size=14, color=GREY_B).next_to(arrow, UP, buff=0.1)
+                rel_label = Text(r.relation_type, font_size=14, color=GREY_B).next_to(
+                    arrow, UP, buff=0.1
+                )
                 arrow_group = VGroup(arrow, rel_label)
                 self.arrows.append(arrow_group)
                 self.add(arrow_group)

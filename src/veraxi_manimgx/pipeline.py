@@ -1,12 +1,12 @@
 """End-to-end production pipeline orchestrating Veraxi research and ManimGX scene compilation."""
+
 from __future__ import annotations
 
 import logging
-from typing import Any
 
 from veraxi_manimgx.client.veraxi_client import VeraxiClient
 from veraxi_manimgx.core.fact_gate import FactGate
-from veraxi_manimgx.core.models import Storyboard, ScriptBeat, EvidenceCitation
+from veraxi_manimgx.core.models import Storyboard, ScriptBeat
 from veraxi_manimgx.generators.manim_generator import ManimCodeGenerator
 
 logger = logging.getLogger(__name__)
@@ -36,9 +36,7 @@ class ProductionPipeline:
             clean_quote = cit.verbatim_quote.strip().replace("\n", " ")
             clean_quote = clean_quote[:120] if len(clean_quote) > 120 else clean_quote
 
-            narration = (
-                f"According to primary sources, [{cit.source[:30]}] documented that [{clean_quote}]."
-            )
+            narration = f"According to primary sources, [{cit.source[:30]}] documented that [{clean_quote}]."
             beat = ScriptBeat(
                 id=f"beat_{idx}",
                 narration=narration,
@@ -54,7 +52,9 @@ class ProductionPipeline:
             beats=beats,
         )
 
-    async def run(self, topic: str, strict_audit: bool = False) -> tuple[Storyboard, str]:
+    async def run(
+        self, topic: str, strict_audit: bool = False
+    ) -> tuple[Storyboard, str]:
         """
         Executes complete production workflow:
         1. Research via Veraxi MCP

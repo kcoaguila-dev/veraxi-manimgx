@@ -1,4 +1,5 @@
 """Asynchronous client for interacting with Veraxi MCP server."""
+
 from __future__ import annotations
 
 import json
@@ -164,7 +165,9 @@ class VeraxiClient:
                     citations.append(
                         EvidenceCitation(
                             id=str(h.get("id")),
-                            source=payload.get("source") or payload.get("document_id") or "Document",
+                            source=payload.get("source")
+                            or payload.get("document_id")
+                            or "Document",
                             page=payload.get("page_number"),
                             breadcrumb=payload.get("breadcrumb"),
                             verbatim_quote=payload.get("text", "")[:300],

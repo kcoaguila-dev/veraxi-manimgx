@@ -1,8 +1,8 @@
 """Grounding Gate: Enforces factual proof on every script beat before rendering."""
+
 from __future__ import annotations
 
 import logging
-from typing import Any
 
 from veraxi_manimgx.client.veraxi_client import VeraxiClient
 from veraxi_manimgx.core.models import ScriptBeat, Storyboard, FactCheckVerdict
@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 
 class GroundingGateError(Exception):
     """Raised when one or more script beats fail the grounding threshold."""
+
     def __init__(self, message: str, failed_verdicts: list[FactCheckVerdict]) -> None:
         super().__init__(message)
         self.failed_verdicts = failed_verdicts
@@ -20,7 +21,9 @@ class GroundingGateError(Exception):
 class FactGate:
     """Audits each script beat against the Veraxi knowledge base."""
 
-    def __init__(self, client: VeraxiClient | None = None, threshold: float = 0.75) -> None:
+    def __init__(
+        self, client: VeraxiClient | None = None, threshold: float = 0.75
+    ) -> None:
         self.client = client or VeraxiClient()
         self.threshold = threshold
 
@@ -49,7 +52,9 @@ class FactGate:
         beat.verified = len(failed_claims) == 0
         return beat
 
-    async def audit_storyboard(self, storyboard: Storyboard, strict: bool = True) -> Storyboard:
+    async def audit_storyboard(
+        self, storyboard: Storyboard, strict: bool = True
+    ) -> Storyboard:
         """Audits all beats in a storyboard, raising an error if strict is True and any fail."""
         all_failed: list[FactCheckVerdict] = []
 

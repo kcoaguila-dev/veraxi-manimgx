@@ -1,8 +1,8 @@
 """Generates executable Python ManimGX scene scripts from verified Storyboard models."""
+
 from __future__ import annotations
 
-import re
-from veraxi_manimgx.core.models import Storyboard, ScriptBeat, VisualType
+from veraxi_manimgx.core.models import Storyboard, ScriptBeat
 
 
 class ManimCodeGenerator:
@@ -44,13 +44,15 @@ class ManimCodeGenerator:
         for idx, beat in enumerate(storyboard.beats, start=1):
             lines.extend(self._compile_beat(beat, idx))
 
-        lines.extend([
-            "        self.wait(2.0)",
-            "",
-            'if __name__ == "__main__":',
-            "    # Run via CLI: manimgx render this_file.py",
-            "    pass",
-        ])
+        lines.extend(
+            [
+                "        self.wait(2.0)",
+                "",
+                'if __name__ == "__main__":',
+                "    # Run via CLI: manimgx render this_file.py",
+                "    pass",
+            ]
+        )
         return "\n".join(lines)
 
     def _compile_beat(self, beat: ScriptBeat, index: int) -> list[str]:
@@ -68,32 +70,38 @@ class ManimCodeGenerator:
             clean_source = citation.source.replace('"', '\\"')
             page_val = citation.page if citation.page is not None else "None"
 
-            code.extend([
-                f"        {card_var} = ProofCard(",
-                f'            document_title="{clean_source}",',
-                f"            page_number={page_val},",
-                f'            quote="{clean_quote}",',
-                "        ).move_to(ORIGIN).shift(0.5 * DOWN)",
-            ])
+            code.extend(
+                [
+                    f"        {card_var} = ProofCard(",
+                    f'            document_title="{clean_source}",',
+                    f"            page_number={page_val},",
+                    f'            quote="{clean_quote}",',
+                    "        ).move_to(ORIGIN).shift(0.5 * DOWN)",
+                ]
+            )
             has_card = True
 
         # Extract bracketed spans in narration for animation binding
         escaped_narration = beat.narration.replace('"', '\\"')
 
         if has_card:
-            code.extend([
-                "        self.say(",
-                f'            "{escaped_narration}",',
-                f"            FadeIn({card_var}, shift=0.3 * UP),",
-                "        )",
-                f"        self.play(FadeOut({card_var}, shift=0.2 * DOWN), run_time=0.6)",
-            ])
+            code.extend(
+                [
+                    "        self.say(",
+                    f'            "{escaped_narration}",',
+                    f"            FadeIn({card_var}, shift=0.3 * UP),",
+                    "        )",
+                    f"        self.play(FadeOut({card_var}, shift=0.2 * DOWN), run_time=0.6)",
+                ]
+            )
         else:
-            code.extend([
-                "        self.say(",
-                f'            "{escaped_narration}",',
-                "        )",
-            ])
+            code.extend(
+                [
+                    "        self.say(",
+                    f'            "{escaped_narration}",',
+                    "        )",
+                ]
+            )
 
         code.append("        self.wait(0.5)")
         code.append("")

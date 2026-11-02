@@ -1,10 +1,10 @@
 """Command line interface for Veraxi-ManimGX."""
+
 from __future__ import annotations
 
 import argparse
 import asyncio
 import json
-import sys
 from pathlib import Path
 
 from veraxi_manimgx.client.veraxi_client import VeraxiClient
@@ -21,10 +21,20 @@ def main() -> None:
     subparsers.add_parser("stats", help="Check Veraxi database statistics.")
 
     # Command: generate
-    gen_parser = subparsers.add_parser("generate", help="Research and generate a ManimGX scene script.")
+    gen_parser = subparsers.add_parser(
+        "generate", help="Research and generate a ManimGX scene script."
+    )
     gen_parser.add_argument("topic", type=str, help="Research topic or case study.")
-    gen_parser.add_argument("-o", "--output", type=str, default="scene.py", help="Output Python script path.")
-    gen_parser.add_argument("--beats", type=int, default=3, help="Number of narrative beats.")
+    gen_parser.add_argument(
+        "-o",
+        "--output",
+        type=str,
+        default="scene.py",
+        help="Output Python script path.",
+    )
+    gen_parser.add_argument(
+        "--beats", type=int, default=3, help="Number of narrative beats."
+    )
 
     args = parser.parse_args()
 
