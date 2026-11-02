@@ -35,13 +35,19 @@ def main() -> None:
     gen_parser.add_argument(
         "--beats", type=int, default=3, help="Number of narrative beats."
     )
+    gen_parser.add_argument(
+        "--url",
+        action="append",
+        dest="urls",
+        help="External web URL(s) to crawl via ephemeral Web RAG (can specify multiple).",
+    )
 
     args = parser.parse_args()
 
     if args.command == "stats":
         asyncio.run(_cmd_stats())
     elif args.command == "generate":
-        asyncio.run(_cmd_generate(args.topic, args.output, args.beats))
+        asyncio.run(_cmd_generate(args.topic, args.output, args.beats, args.urls))
 
 
 async def _cmd_stats() -> None:
@@ -52,10 +58,14 @@ async def _cmd_stats() -> None:
     print(json.dumps(stats, indent=2))
 
 
-async def _cmd_generate(topic: str, output_path: str, beats: int) -> None:
+async def _cmd_generate(
+    topic: str, output_path: str, beats: int, urls: list[str] | None = None
+) -> None:
     pipeline = ProductionPipeline()
     print(f"🎬 Initiating Veraxi-ManimGX production for: '{topic}'")
-    storyboard, code = await pipeline.run(topic)
+    if urls:
+        print(f"🌐 Crawling external URLs via Ephemeral Web RAG: {urls}")
+    storyboard, code = await pipeline.run(topic, urls=urls)
 
     print(f"✅ Storyboard generated: {len(storyboard.beats)} beats")
     print(f"🛡️ Overall Grounding Score: {storyboard.overall_grounding_score:.2f}")

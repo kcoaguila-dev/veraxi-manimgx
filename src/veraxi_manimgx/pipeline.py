@@ -25,10 +25,16 @@ class ProductionPipeline:
         self.generator = ManimCodeGenerator()
 
     async def create_storyboard_from_research(
-        self, topic: str, max_beats: int = 3
+        self, topic: str, max_beats: int = 3, urls: list[str] | None = None
     ) -> Storyboard:
-        """Searches Veraxi GraphRAG and structures evidence into narrative beats."""
-        citations = await self.client.hybrid_search(topic, limit=max_beats)
+        """Searches Veraxi GraphRAG or ephemeral web RAG and structures evidence into narrative beats."""
+        if urls:
+            logger.info(f"Using ephemeral Web RAG for external URLs: {urls}")
+            citations = await self.client.ephemeral_web_rag(
+                query=topic, urls=urls, max_results=max_beats
+            )
+        else:
+            citations = await self.client.hybrid_search(topic, limit=max_beats)
 
         beats: list[ScriptBeat] = []
         for idx, cit in enumerate(citations, start=1):
@@ -53,16 +59,19 @@ class ProductionPipeline:
         )
 
     async def run(
-        self, topic: str, strict_audit: bool = False
+        self,
+        topic: str,
+        urls: list[str] | None = None,
+        strict_audit: bool = False,
     ) -> tuple[Storyboard, str]:
         """
         Executes complete production workflow:
-        1. Research via Veraxi MCP
+        1. Research via Veraxi MCP (indexed database or ephemeral web RAG)
         2. Audit through Fact Gate
         3. Compile to ManimGX Python code
         """
         logger.info(f"Researching topic on Veraxi: {topic}")
-        storyboard = await self.create_storyboard_from_research(topic)
+        storyboard = await self.create_storyboard_from_research(topic, urls=urls)
 
         logger.info("Auditing storyboard claims against knowledge base...")
         audited_storyboard = await self.fact_gate.audit_storyboard(

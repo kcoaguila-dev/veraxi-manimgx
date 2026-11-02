@@ -154,6 +154,56 @@ class VeraxiClient:
             verdict_text=raw,
         )
 
+    async def ephemeral_web_rag(
+        self, query: str, urls: list[str], max_results: int = 3
+    ) -> list[EvidenceCitation]:
+        """Crawls web URLs on-the-fly, temporarily indexes them, and performs GraphRAG."""
+        raw = await self.call_tool(
+            "mcp_ephemeral_web_rag",
+            {"query": query, "urls": urls, "max_results": max_results},
+        )
+        citations = []
+        try:
+            data = json.loads(raw) if isinstance(raw, str) else raw
+            results = data.get("results", [])
+            for r in results:
+                payload = r.get("payload", {})
+                citations.append(
+                    EvidenceCitation(
+                        id=str(r.get("id")),
+                        source=payload.get(
+                            "source", urls[0] if urls else "Web Document"
+                        ),
+                        page=payload.get("page_number"),
+                        verbatim_quote=payload.get("text", "")[:300],
+                        chunk_text=payload.get("text", ""),
+                        score=r.get("fused_score") or r.get("score"),
+                    )
+                )
+        except Exception as exc:
+            logger.debug(f"Failed to parse ephemeral web RAG results: {exc}")
+        return citations
+
+    async def ingest_document(
+        self,
+        url: str | None = None,
+        file_path: str | None = None,
+        wait_for_completion: bool = False,
+    ) -> dict[str, Any]:
+        """Ingests a new document or URL permanently into Veraxi knowledge base."""
+        raw = await self.call_tool(
+            "mcp_ingest_document",
+            {
+                "url": url,
+                "file_path": file_path,
+                "wait_for_completion": wait_for_completion,
+            },
+        )
+        try:
+            return json.loads(raw) if isinstance(raw, str) else raw
+        except Exception:
+            return {"raw": raw}
+
     def _extract_citations_from_mcp_output(self, text: str) -> list[EvidenceCitation]:
         citations = []
         try:
